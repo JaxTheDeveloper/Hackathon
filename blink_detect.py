@@ -2,6 +2,9 @@
 import numpy as np
 import cv2
 import time
+import timeit
+import datetime as date
+import logging as log
 
 #Initializing the face and eye cascade classifiers from xml files
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -13,12 +16,14 @@ first_read = True
 #Starting the video capture
 cap = cv2.VideoCapture(0)
 ret,img = cap.read()
+log.basicConfig(filename='app.log', filemode='w',format='%(asctime)s - %(message)s', level=log.INFO)
+log.info('Camera Initialized')
 
 #variable declaration
 blinktimes = 0
 times = 0
 
-%%time
+
 while(ret):
     timeelasped = time.time()
     ret,img = cap.read()
@@ -46,13 +51,14 @@ while(ret):
                     cv2.putText(img, "Eye detected press s to begin", (70,70), cv2.FONT_HERSHEY_PLAIN, 3,(0,255,0),2)
                 else:
                     cv2.putText(img, "Eyes open!", (70,70), cv2.FONT_HERSHEY_PLAIN, 2,(255,255,255),2)
+                    log.info("eyes open " + str(len(eyes)) + " at " + str(date.datetime.now()))
             else:
 
                 if(first_read):
                     timenoeye = time.time()
                     #To ensure if the eyes are present before starting
                     cv2.putText(img, "No eyes detected", (70,70), cv2.FONT_HERSHEY_PLAIN, 3,(0,0,255),2)
-                    times += 1
+                    log.info("unindentified eyes" + " at " + str(date.datetime.now()))
 
                 else:
                     #This will print on console and restart the algorithm
@@ -62,6 +68,9 @@ while(ret):
 
     else:
         cv2.putText(img,"No face detected",(100,100),cv2.FONT_HERSHEY_PLAIN, 3, (0,255,0),2)
+        time.sleep(.001)
+        times += 1
+        print(times)
 
     #Controlling the algorithm with keys
     cv2.imshow('img',img)

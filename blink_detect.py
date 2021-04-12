@@ -5,6 +5,33 @@ import time
 import timeit
 import datetime as date
 import logging as log
+import pyodbc
+import random
+import socket
+def connect(id,):
+    cnxn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};"
+                          "Server=LAPTOP-71I31G2M;"
+                          "Database=StudentMonitoring;"
+                          "Trusted_Connection=yes;")
+
+    cursor = cnxn.cursor()
+
+    cursor.execute('SELECT * FROM dbo.person ')
+    for row in cursor:
+        print('row = %r' % (row,))
+
+def insertToDataBase(_id, _ip, _len_eye, _time):
+    cnxn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};"
+                          "Server=LAPTOP-71I31G2M;"
+                          "Database=StudentMonitoring;"
+                          "Trusted_Connection=yes;")
+
+    cursor = cnxn.cursor()
+    cursor.execute('''
+                    INSERT INTO dbo.person (id, ip,len_eye,timer )
+                    VALUES(_id, _ip, _len_eye, _time)
+                    ''')
+
 
 #Initializing the face and eye cascade classifiers from xml files
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -25,6 +52,7 @@ times = 0
 
 
 while(ret):
+
     timeelasped = time.time()
     ret,img = cap.read()
     #Coverting the recorded image to grayscale
@@ -49,6 +77,12 @@ while(ret):
                 #Check if program is running for detection 
                 if(first_read):
                     cv2.putText(img, "Eye detected press s to begin", (70,70), cv2.FONT_HERSHEY_PLAIN, 3,(0,255,0),2)
+                    '''n = random.random()
+                    hostname = socket.gethostname()
+                    ip_address = socket.gethostbyname(hostname)
+                    insertToDataBase(n, ip_address, str(len(eyes)), str(date.datetime.now()))'''
+                    log.info("eyes detected " + str(len(eyes)) + " at " + str(date.datetime.now()))
+
                 else:
                     cv2.putText(img, "Eyes open!", (70,70), cv2.FONT_HERSHEY_PLAIN, 2,(255,255,255),2)
                     log.info("eyes open " + str(len(eyes)) + " at " + str(date.datetime.now()))
@@ -78,6 +112,7 @@ while(ret):
     if(a==ord('q')):
         print(blinktimes)
         print(times)
+        break
     elif(a==ord('s') and first_read):
         #This will start the detection
         first_read = False

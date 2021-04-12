@@ -1,0 +1,145 @@
+1
+1
+
+00:00:00,560  -->  00:00:05,790
+Welcome to this new lecture of the course
+and this is quite special. I happen to
+3
+
+2
+
+00:00:05,790  -->  00:00:10,950
+be on camera because in this lecture
+what is going to build is a program that
+5
+
+3
+
+00:00:10,950  -->  00:00:16,650
+detects objects, moving objects in front
+of a computer webcam and then what it
+7
+
+4
+
+00:00:16,650  -->  00:00:22,289
+does it record the time that the object
+enters the webcam, so the video frame
+9
+
+5
+
+00:00:22,289  -->  00:00:26,730
+and the time when the object exited the
+video frame, so now there is a moving
+11
+
+6
+
+00:00:26,730  -->  00:00:36,510
+object in frame and if I go away you see
+that there's no green rectangle now in
+13
+
+7
+
+00:00:36,510  -->  00:00:45,210
+the video. And now I show up again, move
+out again, and so on. So we're going to
+15
+
+8
+
+00:00:45,210  -->  00:00:51,239
+build this application from scratch
+using Python and yeah we have a lot of
+17
+
+9
+
+00:00:51,239  -->  00:00:57,420
+things to learn such as image processing
+and video processing as well, and so on.
+19
+
+10
+
+00:00:57,420  -->  00:01:06,330
+And lastly what we do then if you press
+q for quit, what you get is a graph and
+21
+
+11
+
+00:01:06,330  -->  00:01:11,670
+as I said the graph will show the times
+where the object entered the frame so
+23
+
+12
+
+00:01:11,670  -->  00:01:17,400
+we're dealing with an interactive graph
+here and yeah, this are the times when
+25
+
+13
+
+00:01:17,400  -->  00:01:22,619
+the object entered the webcam like this
+one, this one here, and here it lasted
+27
+
+14
+
+00:01:22,619  -->  00:01:28,439
+longer, and so on. This can be a great
+application if you want to detect objects.
+29
+
+15
+
+00:01:28,439  -->  00:01:33,119
+you get throw, you can put this
+application of this Python program in
+31
+
+16
+
+00:01:33,119  -->  00:01:38,310
+a Raspberry Pi server for instance
+which is a small server and you can put
+33
+
+17
+
+00:01:38,310  -->  00:01:43,770
+it somewhere and maybe want to detect
+animals. You may want to know when this
+35
+
+18
+
+00:01:43,770  -->  00:01:48,780
+animal is entering the frame and whem
+it is exiting, or with people as well if
+37
+
+19
+
+00:01:48,780  -->  00:01:54,420
+there is the case. So, yeah, this is
+the program and I hope you enjoyed. we have
+39
+
+20
+
+00:01:54,420  -->  00:01:58,259
+quite a lot of codes to write, so let's
+get started and I'll talk to you
+41
+
+21
+
+00:01:58,259  -->  00:01:59,000
+in the next lecture.

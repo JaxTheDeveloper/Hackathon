@@ -2,36 +2,10 @@
 import numpy as np
 import cv2
 import time
-import timeit
 import datetime as date
 import logging as log
-import pyodbc
-import random
-import socket
-def connect(id,):
-    cnxn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};"
-                          "Server=LAPTOP-71I31G2M;"
-                          "Database=StudentMonitoring;"
-                          "Trusted_Connection=yes;")
-
-    cursor = cnxn.cursor()
-
-    cursor.execute('SELECT * FROM dbo.person ')
-    for row in cursor:
-        print('row = %r' % (row,))
-
-def insertToDataBase(_id, _ip, _len_eye, _time):
-    cnxn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};"
-                          "Server=LAPTOP-71I31G2M;"
-                          "Database=StudentMonitoring;"
-                          "Trusted_Connection=yes;")
-
-    cursor = cnxn.cursor()
-    cursor.execute('''
-                    INSERT INTO dbo.person (id, ip,len_eye,timer )
-                    VALUES(_id, _ip, _len_eye, _time)
-                    ''')
-
+import pandas
+import bokeh
 
 #Initializing the face and eye cascade classifiers from xml files
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -42,13 +16,15 @@ first_read = True
 
 #Starting the video capture
 cap = cv2.VideoCapture(0)
-ret,img = cap.read()
+ret, img = cap.read()
 log.basicConfig(filename='app.log', filemode='w',format='%(asctime)s - %(message)s', level=log.INFO)
 log.info('Camera Initialized')
+first_frame=None
 
 #variable declaration
 blinktimes = 0
-times = 0
+statuslis = [0]
+timeevents = []
 
 
 while(ret):
@@ -57,6 +33,10 @@ while(ret):
     ret,img = cap.read()
     #Coverting the recorded image to grayscale
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    gray2=cv2.GaussianBlur(gray,(21,21),0)
+    delta_frame=cv2.absdiff(ret,gray)
+    thresh_frame=cv2.threshold(delta_frame, 30, 255, cv2.THRESH_BINARY)[1]
+    thresh_frame=cv2.dilate(thresh_frame, None, iterations=2)
     #Applying filter to remove impurities
     gray = cv2.bilateralFilter(gray,5,1,1)
 
@@ -77,11 +57,11 @@ while(ret):
                 #Check if program is running for detection 
                 if(first_read):
                     cv2.putText(img, "Eye detected press s to begin", (70,70), cv2.FONT_HERSHEY_PLAIN, 3,(0,255,0),2)
-                    '''n = random.random()
-                    hostname = socket.gethostname()
-                    ip_address = socket.gethostbyname(hostname)
-                    insertToDataBase(n, ip_address, str(len(eyes)), str(date.datetime.now()))'''
                     log.info("eyes detected " + str(len(eyes)) + " at " + str(date.datetime.now()))
+                    status = 2
+                    statuslis.append(status)
+                    if statuslis[-1] == statuslis[-2]:
+                        timeevents.append(date.datetime.now())
 
                 else:
                     cv2.putText(img, "Eyes open!", (70,70), cv2.FONT_HERSHEY_PLAIN, 2,(255,255,255),2)
@@ -93,7 +73,8 @@ while(ret):
                     #To ensure if the eyes are present before starting
                     cv2.putText(img, "No eyes detected", (70,70), cv2.FONT_HERSHEY_PLAIN, 3,(0,0,255),2)
                     log.info("unindentified eyes" + " at " + str(date.datetime.now()))
-
+                    status = 1
+                    statuslis.append(status)
                 else:
                     #This will print on console and restart the algorithm
                     print("Blink detected--------------")
@@ -102,16 +83,20 @@ while(ret):
 
     else:
         cv2.putText(img,"No face detected",(100,100),cv2.FONT_HERSHEY_PLAIN, 3, (0,255,0),2)
-        time.sleep(.001)
-        times += 1
-        print(times)
+        status = 0
+        statuslis.append(status)
 
     #Controlling the algorithm with keys
     cv2.imshow('img',img)
+    cv2.imshow('img2', delta_frame)
+    cv2.imshow('img3', thresh_frame)
     a = cv2.waitKey(1)
+
+    print(status)
     if(a==ord('q')):
         print(blinktimes)
-        print(times)
+        print(statuslis)
+        print(timeevents)
         break
     elif(a==ord('s') and first_read):
         #This will start the detection

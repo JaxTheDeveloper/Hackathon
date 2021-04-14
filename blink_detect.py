@@ -23,12 +23,12 @@ first_frame=None
 
 #variable declaration
 blinktimes = 0
-statuslis = [0]
+statuslis = [None, None]
 timeevents = []
 
 
 while(ret):
-
+    timeevents.append([0,date.datetime.now()])
     timeelasped = time.time()
     ret,img = cap.read()
     #Coverting the recorded image to grayscale
@@ -60,8 +60,8 @@ while(ret):
                     log.info("eyes detected " + str(len(eyes)) + " at " + str(date.datetime.now()))
                     status = 2
                     statuslis.append(status)
-                    if statuslis[-1] == statuslis[-2]:
-                        timeevents.append(date.datetime.now())
+                    if statuslis[-1] != statuslis[-2]:
+                        timeevents.append([2, date.datetime.now()])
 
                 else:
                     cv2.putText(img, "Eyes open!", (70,70), cv2.FONT_HERSHEY_PLAIN, 2,(255,255,255),2)
@@ -69,12 +69,13 @@ while(ret):
             else:
 
                 if(first_read):
-                    timenoeye = time.time()
                     #To ensure if the eyes are present before starting
                     cv2.putText(img, "No eyes detected", (70,70), cv2.FONT_HERSHEY_PLAIN, 3,(0,0,255),2)
                     log.info("unindentified eyes" + " at " + str(date.datetime.now()))
                     status = 1
                     statuslis.append(status)
+                    if statuslis[-1] != statuslis[-2]:
+                        timeevents.append([1, date.datetime.now()])
                 else:
                     #This will print on console and restart the algorithm
                     print("Blink detected--------------")
@@ -85,6 +86,8 @@ while(ret):
         cv2.putText(img,"No face detected",(100,100),cv2.FONT_HERSHEY_PLAIN, 3, (0,255,0),2)
         status = 0
         statuslis.append(status)
+        if statuslis[-1] != statuslis[-2]:
+            timeevents.append([0, date.datetime.now()])
 
     #Controlling the algorithm with keys
     cv2.imshow('img',img)
@@ -97,6 +100,8 @@ while(ret):
         print(blinktimes)
         print(statuslis)
         print(timeevents)
+        if status != 0:
+            timeevents.append[0,date.datetime.now()]
         break
     elif(a==ord('s') and first_read):
         #This will start the detection

@@ -5,7 +5,8 @@ import time
 import datetime as date
 import logging as log
 import pandas
-import bokeh
+from bokeh.plotting import figure, show, output_file
+from bokeh.models import HoverTool, ColumnDataSource
 
 #Initializing the face and eye cascade classifiers from xml files
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -25,18 +26,18 @@ first_frame=None
 blinktimes = 0
 statuslis = [None, None]
 timeevents = []
-
+df = pandas.DataFrame(columns=['Nface ','Neyes','Affrm'])
+timeevents.append([0,date.datetime.now()])
 
 while(ret):
-    timeevents.append([0,date.datetime.now()])
-    timeelasped = time.time()
+
     ret,img = cap.read()
     #Coverting the recorded image to grayscale
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     gray2=cv2.GaussianBlur(gray,(21,21),0)
-    delta_frame=cv2.absdiff(ret,gray)
-    thresh_frame=cv2.threshold(delta_frame, 30, 255, cv2.THRESH_BINARY)[1]
-    thresh_frame=cv2.dilate(thresh_frame, None, iterations=2)
+    #delta_frame=cv2.absdiff(ret,gray)
+    #thresh_frame=cv2.threshold(delta_frame, 30, 255, cv2.THRESH_BINARY)[1]
+    #thresh_frame=cv2.dilate(thresh_frame, None, iterations=2)
     #Applying filter to remove impurities
     gray = cv2.bilateralFilter(gray,5,1,1)
 
@@ -56,16 +57,15 @@ while(ret):
             if(len(eyes)>=2):
                 #Check if program is running for detection 
                 if(first_read):
-                    cv2.putText(img, "Eye detected press s to begin", (70,70), cv2.FONT_HERSHEY_PLAIN, 3,(0,255,0),2)
+                    cv2.putText(img, "Eye detected", (70,70), cv2.FONT_HERSHEY_PLAIN, 3,(0,255,0),2)
                     log.info("eyes detected " + str(len(eyes)) + " at " + str(date.datetime.now()))
                     status = 2
                     statuslis.append(status)
-                    if statuslis[-1] != statuslis[-2]:
-                        timeevents.append([2, date.datetime.now()])
+                    timeevents.append([2,date.datetime.now()])
 
-                else:
-                    cv2.putText(img, "Eyes open!", (70,70), cv2.FONT_HERSHEY_PLAIN, 2,(255,255,255),2)
-                    log.info("eyes open " + str(len(eyes)) + " at " + str(date.datetime.now()))
+                #else:
+                #    cv2.putText(img, "Eyes open!", (70,70), cv2.FONT_HERSHEY_PLAIN, 2,(255,255,255),2)
+                #    log.info("eyes open " + str(len(eyes)) + " at " + str(date.datetime.now()))
             else:
 
                 if(first_read):
@@ -74,25 +74,21 @@ while(ret):
                     log.info("unindentified eyes" + " at " + str(date.datetime.now()))
                     status = 1
                     statuslis.append(status)
-                    if statuslis[-1] != statuslis[-2]:
-                        timeevents.append([1, date.datetime.now()])
-                else:
-                    #This will print on console and restart the algorithm
-                    print("Blink detected--------------")
-                    cv2.waitKey(3000)
-                    first_read=True
+                    timeevents.append([1, date.datetime.now()])
+                #else:
+                    ##This will print on console and restart the algorithm
+                    #print("Blink detected--------------")
+                    #cv2.waitKey(3000)
+                    #first_read=True
 
     else:
         cv2.putText(img,"No face detected",(100,100),cv2.FONT_HERSHEY_PLAIN, 3, (0,255,0),2)
         status = 0
         statuslis.append(status)
-        if statuslis[-1] != statuslis[-2]:
-            timeevents.append([0, date.datetime.now()])
+        timeevents.append([0, date.datetime.now()])
 
     #Controlling the algorithm with keys
     cv2.imshow('img',img)
-    cv2.imshow('img2', delta_frame)
-    cv2.imshow('img3', thresh_frame)
     a = cv2.waitKey(1)
 
     print(status)
@@ -102,10 +98,22 @@ while(ret):
         print(timeevents)
         if status != 0:
             timeevents.append[0,date.datetime.now()]
+        #timeevents.append[[0],['anta ga baka']]
         break
     elif(a==ord('s') and first_read):
         #This will start the detection
         first_read = False
+
+for i in range(0,len(timeevents)):
+    #df=df.append({"Start":str(timeevents[i][0]),"End":timeevents[i]},ignore_index=True)
+    if timeevents[i][0] == 0:
+        df = df.append({"Nface":str(timeevents[i][1])}, ignore_index=True)
+    elif timeevents[i][0] == 1:
+        df = df.append({"Neyes": str(timeevents[i][1])}, ignore_index=True)
+    elif timeevents[i][0] == 2:
+        df = df.append({"Affrm": str(timeevents[i][1])}, ignore_index=True)
+
+df.to_csv("Times.csv")
 
 cap.release()
 cv2.destroyAllWindows()

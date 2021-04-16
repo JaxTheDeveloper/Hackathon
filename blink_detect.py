@@ -22,7 +22,7 @@ first_frame = None
 
 # variable declaration
 blinktimes = 0
-statuslis = [None, None]
+statuslis = []
 timeevents = []
 nface = []
 neyes = []
@@ -105,19 +105,18 @@ while ret:
         # This will start the detection
         first_read = False
 
-#for i in range(0, len(timeevents)):
-#    if timeevents[i][0] == 0: nface.append(timeevents[i][1])
-#    elif timeevents[i][0] == 1: neyes.append(timeevents[i][1])
-#    elif timeevents[i][0] == 2: nface.append(timeevents[i][1])
+timeevents.append([6, 'nani'])
+
+
+print('-----------')
+
+
+#for i in range(0,len(nface),2):
+#    df = df.append({"Nfacest": str(timeevents[i][1])}, ignore_index=True)
+#    df = df.append({"Nfaceen": str(timeevents[i+1][1])}, ignore_index=True)
 
 
 for i in range(0, len(timeevents)):
-    if i == 0:
-        if timeevents[i][0] == 0:  df = df.append({"NfaceStart": str(timeevents[i][1])}, ignore_index=True)
-        elif timeevents[i][0] == 1:  df = df.append({"NyeysStart": str(timeevents[i][1])}, ignore_index=True)
-        elif timeevents[i][0] == 2:  df = df.append({"Affrmtart": str(timeevents[i][1])}, ignore_index=True)
-
-
     # df=df.append({"Start":str(timeevents[i][0]),"End":timeevents[i]},ignore_index=True)
     if timeevents[i][0] == 0:
         df = df.append({"Nface": str(timeevents[i][1])}, ignore_index=True)
@@ -127,6 +126,30 @@ for i in range(0, len(timeevents)):
         df = df.append({"Affrm": str(timeevents[i][1])}, ignore_index=True)
 
 df.to_csv("Times.csv")
+
+if timeevents[0][0] == 0: nface.append(timeevents[0][1])
+elif timeevents[0][0] == 1: neyes.append(timeevents[0][1])
+else: afrm.append(timeevents[0][1])
+
+for i in range(len(timeevents)-1):
+    if timeevents[i][0] != timeevents[i+1][0]:
+        if timeevents[i][0] == 0:
+            nface.append(timeevents[i])
+        elif timeevents[i][0] == 1:
+            neyes.append(timeevents[i])
+        elif timeevents[i][0] == 2:
+            afrm.append(timeevents[i])
+        if timeevents[i+1][0] == 0:
+            nface.append(timeevents[i+1])
+        elif timeevents[i+1][0] == 1:
+            neyes.append(timeevents[i+1])
+        elif timeevents[i+1][0] == 2:
+            afrm.append(timeevents[i+1])
+
+
+print(nface)
+print(neyes)
+print(afrm)
 
 cap.release()
 cv2.destroyAllWindows()

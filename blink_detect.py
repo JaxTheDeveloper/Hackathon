@@ -27,13 +27,21 @@ timeevents = []
 nface = []
 neyes = []
 afrm = []
+nfacetot = []
+neyestot = []
+afrmtot = []
 df = pandas.DataFrame(columns=['Nface', 'Neyes', 'Affrm'])
 df2 = pandas.DataFrame(columns=[])
 df3 = pandas.DataFrame(columns=[])
 df5 = pandas.DataFrame(columns=[])
 df6 = pandas.DataFrame(columns=[])
+facecoords = []
+eyecoords1 = []
+eyecoords2 = []
 timeevents.append([0, date.datetime.now()])
 
+
+sessionStart = date.datetime.now()
 
 while ret:
 
@@ -41,14 +49,12 @@ while ret:
     # Converting the recorded image to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray2 = cv2.GaussianBlur(gray, (21, 21), 0)
-    # delta_frame=cv2.absdiff(ret,gray)
-    # thresh_frame=cv2.threshold(delta_frame, 30, 255, cv2.THRESH_BINARY)[1]
-    # thresh_frame=cv2.dilate(thresh_frame, None, iterations=2)
-    # Applying filter to remove impurities
+
     gray = cv2.bilateralFilter(gray, 5, 1, 1)
 
     # Detecting the face for region of image to be fed to eye classifier
     faces = face_cascade.detectMultiScale(gray, 1.3, 5, minSize=(200, 200))
+    eyes1 = eye_cascade.detectMultiScale(gray, 1.3, 5, minSize=(50, 50))
     if (len(faces) > 0):
         timeelasped = time.time()
         for (x, y, w, h) in faces:
@@ -58,6 +64,13 @@ while ret:
             roi_face = gray[y:y + h, x:x + w]
             roi_face_clr = img[y:y + h, x:x + w]
             eyes = eye_cascade.detectMultiScale(roi_face, 1.3, 5, minSize=(50, 50))
+            z = x + w
+            t = y + h
+            facecoords = [x,y,z,t]
+            print(facecoords)
+
+        for (x1, y1, w1, h1) in eyes1:
+            img = cv2.rectangle(img, (x1, y1), (x1 + w1, y1 + h1), (0, 255, 0), 2)
 
             # Examining the length of eyes object for eyes
             if (len(eyes) >= 2):
@@ -69,9 +82,6 @@ while ret:
                     statuslis.append(status)
                     timeevents.append([2, date.datetime.now()])
 
-                # else:
-                #    cv2.putText(img, "Eyes open!", (70,70), cv2.FONT_HERSHEY_PLAIN, 2,(255,255,255),2)
-                #    log.info("eyes open " + str(len(eyes)) + " at " + str(date.datetime.now()))
             else:
 
                 if (first_read):
@@ -81,11 +91,6 @@ while ret:
                     status = 1
                     statuslis.append(status)
                     timeevents.append([1, date.datetime.now()])
-                # else:
-                ##This will print on console and restart the algorithm
-                # print("Blink detected--------------")
-                # cv2.waitKey(3000)
-                # first_read=True
 
     else:
         cv2.putText(img, "No face detected", (100, 100), cv2.FONT_HERSHEY_PLAIN, 3, (0, 0, 255), 2)
@@ -104,6 +109,8 @@ while ret:
         print(timeevents)
         if status != 0:
             timeevents.append([0, date.datetime.now()])
+        timeend = date.datetime.now()
+        print(facecoords)
         break
     elif (a == ord('s') and first_read):
         # This will start the detection
@@ -111,15 +118,9 @@ while ret:
 
 timeevents.append([6, 'nani'])
 
-
 print('-----------')
 
-
-#for i in range(0,len(nface),2):
-#    df = df.append({"Nfacest": str(timeevents[i][1])}, ignore_index=True)
-#    df = df.append({"Nfaceen": str(timeevents[i+1][1])}, ignore_index=True)
-
-
+#State classification and prepping for the graph
 for i in range(0, len(timeevents)):
     # df=df.append({"Start":str(timeevents[i][0]),"End":timeevents[i]},ignore_index=True)
     if timeevents[i][0] == 0:
@@ -171,6 +172,38 @@ for i in range(0,len(afrm),2):
 print("nface: ",nface)
 print('neyes: ', neyes)
 print('affrm', afrm)
+
+#calculate time difference and judging
+
+timeelasped = timeend - sessionStart
+print(timeelasped)
+
+datetime_object = date.datetime.now()
+datetime_object = datetime_object-datetime_object
+
+inittime = datetime_object
+inittime2 = datetime_object
+
+print(datetime_object)
+
+for i in range(0,len(nface),2):
+    nfacetot.append(nface[i+1][1]-nface[i][1])
+for i in range(len(nfacetot)):
+    datetime_object += nfacetot[i]
+
+for i in range(0,len(neyes),2):
+    neyestot.append(neyes[i+1][1]-neyes[i][1])
+for i in range(len(neyestot)):
+    inittime += neyestot[i]
+
+for i in range(0,len(afrm),2):
+    afrmtot.append(afrm[i+1][1]-afrm[i][1])
+for i in range(len(afrmtot)):
+    inittime2 += afrmtot[i]
+
+print(datetime_object,inittime,inittime2)
+
+
 
 cap.release()
 cv2.destroyAllWindows()

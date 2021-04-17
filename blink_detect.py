@@ -35,6 +35,7 @@ df2 = pandas.DataFrame(columns=[])
 df3 = pandas.DataFrame(columns=[])
 df5 = pandas.DataFrame(columns=[])
 df6 = pandas.DataFrame(columns=[])
+eventdt = []
 facecoords = []
 eyecoords1 = []
 eyecoords2 = []
@@ -66,13 +67,19 @@ while ret:
             eyes = eye_cascade.detectMultiScale(roi_face, 1.3, 5, minSize=(50, 50))
             z = x + w
             t = y + h
+            outdingtext = 'x,y,z,t= ' + str([x,y,z,t])
+            cv2.putText(img,outdingtext, (x,y-20),cv2.FONT_HERSHEY_PLAIN,1,(0,255,0),2)
             facecoords = [x,y,z,t]
-            print(facecoords)
 
         for (x1, y1, w1, h1) in eyes1:
             img = cv2.rectangle(img, (x1, y1), (x1 + w1, y1 + h1), (0, 255, 0), 2)
-
+            z1 = x1 + w1
+            t1 = y1 + h1
+            outdingtext2 = 'x1,y1,z1,t1= ' + str([x1, y1, z1, t1])
+            cv2.putText(img, outdingtext2, (x, y - 20), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+            eyecoords1 = [(x1, y1, z1, t1)]
             # Examining the length of eyes object for eyes
+
             if (len(eyes) >= 2):
                 # Check if program is running for detection
                 if (first_read):
@@ -80,7 +87,7 @@ while ret:
                     log.info("eyes detected " + str(len(eyes)) + " at " + str(date.datetime.now()))
                     status = 2
                     statuslis.append(status)
-                    timeevents.append([2, date.datetime.now()])
+                    timeevents.append([2, date.datetime.now(), facecoords, eyecoords1])
 
             else:
 
@@ -90,7 +97,7 @@ while ret:
                     log.info("unindentified eyes" + " at " + str(date.datetime.now()))
                     status = 1
                     statuslis.append(status)
-                    timeevents.append([1, date.datetime.now()])
+                    timeevents.append([1, date.datetime.now(), facecoords])
 
     else:
         cv2.putText(img, "No face detected", (100, 100), cv2.FONT_HERSHEY_PLAIN, 3, (0, 0, 255), 2)
@@ -102,15 +109,11 @@ while ret:
     cv2.imshow('img', img)
     a = cv2.waitKey(1)
 
-    print(status)
     if (a == ord('q')):
         print(blinktimes)
-        print(statuslis)
-        print(timeevents)
         if status != 0:
             timeevents.append([0, date.datetime.now()])
         timeend = date.datetime.now()
-        print(facecoords)
         break
     elif (a == ord('s') and first_read):
         # This will start the detection
@@ -169,14 +172,9 @@ for i in range(0,len(neyes),2):
 for i in range(0,len(afrm),2):
     df6=df6.append({"Start":afrm[i][1],"End":afrm[i+1][1]},ignore_index=True)
 
-print("nface: ",nface)
-print('neyes: ', neyes)
-print('affrm', afrm)
-
 #calculate time difference and judging
 
-timeelasped = timeend - sessionStart
-print(timeelasped)
+#timeelasped = timeend - sessionStart
 
 datetime_object = date.datetime.now()
 datetime_object = datetime_object-datetime_object
@@ -184,7 +182,7 @@ datetime_object = datetime_object-datetime_object
 inittime = datetime_object
 inittime2 = datetime_object
 
-print(datetime_object)
+print(timeevents)
 
 for i in range(0,len(nface),2):
     nfacetot.append(nface[i+1][1]-nface[i][1])
@@ -201,9 +199,23 @@ for i in range(0,len(afrm),2):
 for i in range(len(afrmtot)):
     inittime2 += afrmtot[i]
 
-print(datetime_object,inittime,inittime2)
+print(timeevents[18][1])
 
+timeevents2 = timeevents
 
+for i in range(len(timeevents2)):
+    timeevents2[i][1] = str(timeevents2[i][1])
+
+index = 0
+
+reference = input('Nhap timestamp: ')
+for i in range(len(timeevents2)):
+    if timeevents2[i][1] == reference: index = i
+
+try:
+    print('toa do mat', timeevents2[index][2], 'toa do eyes', timeevents2[index][3])
+except Exception:
+    print('toa do mat', timeevents2[index][2])
 
 cap.release()
 cv2.destroyAllWindows()

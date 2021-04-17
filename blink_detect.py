@@ -162,6 +162,12 @@ df2.to_csv("StrEnd.csv")
 for i in range(0,len(nface),2):
     df3=df3.append({"Start":nface[i][1],"End":nface[i+1][1]},ignore_index=True)
 
+for i in range(0,len(neyes),2):
+    df5=df5.append({"Start":neyes[i][1],"End":neyes[i+1][1]},ignore_index=True)
+
+for i in range(0,len(afrm),2):
+    df6=df6.append({"Start":afrm[i][1],"End":afrm[i+1][1]},ignore_index=True)
+
 print("nface: ",nface)
 print('neyes: ', neyes)
 print('affrm', afrm)

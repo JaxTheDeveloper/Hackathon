@@ -28,6 +28,10 @@ nface = []
 neyes = []
 afrm = []
 df = pandas.DataFrame(columns=['Nface', 'Neyes', 'Affrm'])
+df2 = pandas.DataFrame(columns=[])
+df3 = pandas.DataFrame(columns=[])
+df5 = pandas.DataFrame(columns=[])
+df6 = pandas.DataFrame(columns=[])
 timeevents.append([0, date.datetime.now()])
 
 
@@ -72,7 +76,7 @@ while ret:
 
                 if (first_read):
                     # To ensure if the eyes are present before starting
-                    cv2.putText(img, "No eyes detected", (70, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 0, 255), 2)
+                    cv2.putText(img, "No eyes detected", (70, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 0, 139), 2)
                     log.info("unindentified eyes" + " at " + str(date.datetime.now()))
                     status = 1
                     statuslis.append(status)
@@ -84,7 +88,7 @@ while ret:
                 # first_read=True
 
     else:
-        cv2.putText(img, "No face detected", (100, 100), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 2)
+        cv2.putText(img, "No face detected", (100, 100), cv2.FONT_HERSHEY_PLAIN, 3, (0, 0, 255), 2)
         status = 0
         statuslis.append(status)
         timeevents.append([0, date.datetime.now()])
@@ -119,17 +123,17 @@ print('-----------')
 for i in range(0, len(timeevents)):
     # df=df.append({"Start":str(timeevents[i][0]),"End":timeevents[i]},ignore_index=True)
     if timeevents[i][0] == 0:
-        df = df.append({"Nface": str(timeevents[i][1])}, ignore_index=True)
+        df = df.append({"Nface": str(timeevents[i])}, ignore_index=True)
     elif timeevents[i][0] == 1:
-        df = df.append({"Neyes": str(timeevents[i][1])}, ignore_index=True)
+        df = df.append({"Neyes": str(timeevents[i])}, ignore_index=True)
     elif timeevents[i][0] == 2:
-        df = df.append({"Affrm": str(timeevents[i][1])}, ignore_index=True)
+        df = df.append({"Affrm": str(timeevents[i])}, ignore_index=True)
 
 df.to_csv("Times.csv")
 
-if timeevents[0][0] == 0: nface.append(timeevents[0][1])
-elif timeevents[0][0] == 1: neyes.append(timeevents[0][1])
-else: afrm.append(timeevents[0][1])
+if timeevents[0][0] == 0: nface.append(timeevents[0])
+elif timeevents[0][0] == 1: neyes.append(timeevents[0])
+else: afrm.append(timeevents[0])
 
 for i in range(len(timeevents)-1):
     if timeevents[i][0] != timeevents[i+1][0]:
@@ -146,10 +150,21 @@ for i in range(len(timeevents)-1):
         elif timeevents[i+1][0] == 2:
             afrm.append(timeevents[i+1])
 
+for i in range(len(nface)):
+    df2 = df2.append({"Nface": nface[i][1]}, ignore_index=True)
+for i in range(len(neyes)):
+    df2 = df2.append({"Neyes": neyes[i][1]}, ignore_index=True)
+for i in range(len(afrm)):
+    df2 = df2.append({"Affirm": afrm[i][1]}, ignore_index=True)
 
-print(nface)
-print(neyes)
-print(afrm)
+df2.to_csv("StrEnd.csv")
+
+for i in range(0,len(nface),2):
+    df3=df3.append({"Start":nface[i][1],"End":nface[i+1][1]},ignore_index=True)
+
+print("nface: ",nface)
+print('neyes: ', neyes)
+print('affrm', afrm)
 
 cap.release()
 cv2.destroyAllWindows()

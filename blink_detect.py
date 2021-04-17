@@ -76,7 +76,7 @@ while ret:
             z1 = x1 + w1
             t1 = y1 + h1
             outdingtext2 = 'x1,y1,z1,t1= ' + str([x1, y1, z1, t1])
-            cv2.putText(img, outdingtext2, (x, y - 20), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+            cv2.putText(img, outdingtext2, (x1, y1 - 20), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
             eyecoords1 = [(x1, y1, z1, t1)]
             # Examining the length of eyes object for eyes
 
@@ -122,6 +122,7 @@ while ret:
 timeevents.append([6, 'nani'])
 
 print('-----------')
+print(timeevents)
 
 #State classification and prepping for the graph
 for i in range(0, len(timeevents)):
@@ -167,11 +168,15 @@ for i in range(0,len(nface),2):
     df3=df3.append({"Start":nface[i][1],"End":nface[i+1][1]},ignore_index=True)
 
 for i in range(0,len(neyes),2):
-    df5=df5.append({"Start":neyes[i][1],"End":neyes[i+1][1]},ignore_index=True)
+    df5=df5.append({"Start":neyes[i][1],"End":neyes[i+1][1],'Face Pos Str':str(neyes[i][2]),'Face Pos End':str(neyes[i+1][2])},ignore_index=True)
 
 for i in range(0,len(afrm),2):
     df6=df6.append({"Start":afrm[i][1],"End":afrm[i+1][1]},ignore_index=True)
 
+for i in range(len(neyes)):
+    print(str(neyes[i][2]))
+
+df5.to_csv('test.csv')
 #calculate time difference and judging
 
 #timeelasped = timeend - sessionStart

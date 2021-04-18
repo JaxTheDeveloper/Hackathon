@@ -1,4 +1,5 @@
 import blink_detect
+
 from blink_detect import df3
 from bokeh.plotting import figure, show, output_file
 from bokeh.models import HoverTool, ColumnDataSource
@@ -8,8 +9,8 @@ df3["End_string"]=df3["End"].dt.strftime("%Y-%m-%d %H:%M:%S")
 
 cds=ColumnDataSource(df3)
 
-p=figure(x_axis_type='datetime',height=100, width=500, sizing_mode = "scale_width", title="No Face Graph")
-p.yaxis.minor_tick_line_color=None
+p=figure(x_axis_type='datetime',height=50, width=500, sizing_mode = "scale_width", title="Khoang thoi gian khong xuat hien mat")
+p.yaxis.minor_tick_line_color = None
 p.yaxis.ticker.desired_num_ticks = 1
 
 hover=HoverTool(tooltips=[("Start","@Start_string"),("End","@End_string")])
